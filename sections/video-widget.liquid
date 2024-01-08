@@ -1,0 +1,214 @@
+{{ 'video-section.css' | asset_url | stylesheet_tag }}
+{{ 'component-deferred-media.css' | asset_url | stylesheet_tag }}
+
+<div class="gradient">
+  <div class="video-section isolate">
+    <noscript>
+      <div class="video-section__media"
+        {% if section.settings.cover_image != blank %} style="padding-bottom: {{ 1 | divided_by: section.settings.cover_image.aspect_ratio | times: 100 }}%;"{% endif %}
+      >
+        <a href="{{ section.settings.video_url }}" class="video-section__poster media media--transparent media--landscape{% if section.settings.cover_image == blank %} video-section__placeholder{% endif %}">
+          {%- if section.settings.cover_image != blank -%}
+            {%- capture sizes -%}{% if section.settings.full_width %}100vw{% else %}(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 }}px, (min-width: 750px) calc(100vw - 10rem), 100vw{% endif %}{%- endcapture -%}
+            {%- assign alt = 'sections.video.load_video' | t: description: section.settings.description | escape -%}
+            {{ section.settings.cover_image | image_url: width: 3840 | image_tag:
+              loading: 'lazy',
+              sizes: sizes,
+              widths: '375, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+              alt: alt
+            }}
+          {%- else -%}
+            {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg placeholder' }}
+          {%- endif -%}
+        </a>
+      </div>
+    </noscript>
+    <deferred-media-widget class="video-section__media deferred-media no-js-hidden gradient global-media-settings{% if section.settings.full_width %} global-media-settings--full-width{% endif %}" data-media-id="{{ section.settings.video_url.id }}"
+      {% if section.settings.cover_image != blank %} style="padding-bottom: {{ 1 | divided_by: section.settings.cover_image.aspect_ratio | times: 100 }}%;"{% endif %}
+    >
+      <div class="closemediawidget">
+        <svg style="margin-left: 0.5px; width: 11px !important; height: 10px !important;" width="11" height="10" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13.0547 12.5938C12.8203 12.8281 12.3906 12.8281 12.1562 12.5938L7 7.39844L1.80469 12.5938C1.57031 12.8281 1.14062 12.8281 0.90625 12.5938C0.671875 12.3594 0.671875 11.9297 0.90625 11.6953L6.10156 6.5L0.90625 1.34375C0.671875 1.10938 0.671875 0.679688 0.90625 0.445312C1.14062 0.210938 1.57031 0.210938 1.80469 0.445312L7 5.64062L12.1562 0.445312C12.3906 0.210938 12.8203 0.210938 13.0547 0.445312C13.2891 0.679688 13.2891 1.10938 13.0547 1.34375L7.85938 6.5L13.0547 11.6953C13.2891 11.9297 13.2891 12.3594 13.0547 12.5938Z" fill="white"></path>
+        </svg>
+      </div>
+      <button
+        id="Deferred-Poster-Modal-{{ section.settings.video_url.id }}"
+        class="video-section__poster media deferred-media__poster media--landscape"
+        type="button"
+        aria-label="{{ 'sections.video.load_video' | t: description: section.settings.description | escape }}"
+      >
+        {%- if section.settings.cover_image != blank -%}
+          {%- capture sizes -%}{% if section.settings.full_width %}100vw{% else %}(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 }}px, (min-width: 750px) calc(100vw - 10rem), 100vw{% endif %}{%- endcapture -%}
+          {%- assign alt = 'sections.video.load_video' | t: description: section.settings.description | escape -%}
+          {{ section.settings.cover_image | image_url: width: 3840 | image_tag:
+            loading: 'lazy',
+            sizes: sizes,
+            widths: '375, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+            alt: alt
+          }}
+        {%- else -%}
+          {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg placeholder' }}
+        {%- endif -%}
+        <span class="deferred-media__poster-button motion-reduce">
+          {%- render 'icon-play' -%}
+        </span>
+      </button>
+      <template>
+        {%- if section.settings.video_url.type == 'youtube' -%}
+          <iframe src="https://www.youtube.com/embed/{{ section.settings.video_url.id }}?enablejsapi=1" class="js-youtube" allow="autoplay; encrypted-media" allowfullscreen title="{{ section.settings.description | escape }}"></iframe>
+        {%- else -%}
+          <iframe src="https://player.vimeo.com/video/{{ section.settings.video_url.id }}" class="js-vimeo" allow="autoplay; encrypted-media" allowfullscreen title="{{ section.settings.description | escape }}"></iframe>
+        {%- endif -%}
+      </template>
+    </deferred-media-widget>
+  </div>
+</div>
+<style>
+#shopify-section-{{section.id}}[loaded].video-widget{
+  width: 360px;
+}
+.video-widget{
+  position: fixed;
+  width: 150px;
+  height: auto;
+  max-width:100%;
+  z-index:2;
+}
+{% if section.settings.position == "right" %}
+  [id^="zoko-"] > div{
+    right:160px!important;
+  }
+  .video-widget{
+    right: 10px;
+    bottom: 10px;
+  }
+{% else %}
+  .video-widget{
+    left: 10px;
+    bottom: 10px;
+  }
+{% endif %}
+.video-widget .video-section__media{
+  width: 100%;
+  display: flex;
+}
+.video-widget .deferred-media__poster-button{
+  height: 3.2rem;
+  width: 3.2rem;
+}
+.video-widget .deferred-media__poster-button .icon{
+  width: 1rem;
+  height: 1rem;
+}
+.closemediawidget{
+  position: absolute;
+  right: -5px;
+  top: -8px;
+  width: 25px;
+  height: 25px;
+  background: #000;
+  z-index: 2;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  cursor:pointer;
+}
+#shopify-section-{{section.id}}[loaded].video-widget .closemediawidget{
+  display: flex;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+class DeferredMediaWidget extends HTMLElement {
+  constructor() {
+    super();
+    const poster = this.querySelector('[id^="Deferred-Poster-"]');
+    const close = this.querySelector('.closemediawidget');
+
+    close.addEventListener('click', this.close.bind(this));
+    if (!poster) return;
+    poster.addEventListener('click', this.loadContent.bind(this));
+  }
+
+  loadContent(focus = true) {
+    window.pauseAllMedia();
+    if (!this.getAttribute('loaded')) {
+      document.querySelector("#shopify-section-{{section.id}}").setAttribute('loaded',true);
+      const content = document.createElement('div');
+      content.appendChild(this.querySelector('template').content.firstElementChild.cloneNode(true));
+      this.setAttribute('loaded', true);
+      if(Boolean(this.querySelector('iframe')) == false){
+        const deferredElement = this.appendChild(content.querySelector('video, model-viewer, iframe'));
+        if (focus) deferredElement.focus();
+      }
+      
+    }
+  }
+  close(){
+    document.querySelector("#shopify-section-{{section.id}}").removeAttribute('loaded');
+    this.removeAttribute('loaded');
+  }
+}
+
+customElements.define('deferred-media-widget', DeferredMediaWidget);
+});
+</script>
+{% schema %}
+{
+  "name": "Video Widget",
+  "tag": "section",
+  "class": "section video-widget",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "cover_image",
+      "label": "t:sections.video.settings.cover_image.label"
+    },
+    {
+      "type": "video_url",
+      "id": "video_url",
+      "accept": [
+        "youtube",
+        "vimeo"
+      ],
+      "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
+      "label": "t:sections.video.settings.video_url.label",
+      "info": "t:sections.video.settings.video_url.info"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "t:sections.video.settings.description.label",
+      "info": "t:sections.video.settings.description.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "t:sections.video.settings.full_width.label",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "options": [
+        {
+          "value": "right",
+          "label": "Right"
+        },
+        {
+          "value": "left",
+          "label": "Left"
+        }
+      ],
+      "default": "right",
+      "label": "Position"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video Widget"
+    }
+  ]
+}
+{% endschema %}
